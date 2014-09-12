@@ -103,7 +103,7 @@ public class MainActivity extends ActionBarActivity {
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
 
-                //Here crashes!!
+                //Here crashes!! (subiendo)
 
 // Read the input stream into a String
                 InputStream inputStream = urlConnection.getInputStream();
