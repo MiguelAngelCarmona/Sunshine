@@ -7,5 +7,6 @@
     <string name="dia_jueves">Jueves</string>
     <string name="num11">11</string>
     <string name="action_refresh" translatable="false">Refresh</string>
+    <string name="title_activity_detail">DetailActivity</string>
 
 </resources>
