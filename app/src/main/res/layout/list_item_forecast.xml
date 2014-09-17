@@ -5,11 +5,11 @@
     android:layout_height="match_parent"
     android:weightSum="1">
 
-    <TextView
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Today - Sunny - 88/63"
         android:id="@+id/list_item_forecast_textview"
         android:layout_weight="0.05"
-        android:textSize="@dimen/abc_dropdownitem_icon_width" />
+        android:textSize="@dimen/abc_action_bar_title_text_size" />
 </LinearLayout>
