@@ -7,6 +7,16 @@
     <string name="dia_jueves">Jueves</string>
     <string name="num11">11</string>
     <string name="action_refresh" translatable="false">Refresh</string>
-    <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_detail">Details</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!--location preference [CHAR<=30]-->
+    <string name="pref_location_name">Location</string>
+
+    <!--key name [CHAR no limits]-->
+    <string name="pref_location_key" translatable="false">location</string>
+
+    <!--default postal code [CHAR no limits]-->
+    <string name="pref_location_default" translatable="false">94043</string>
 
 </resources>
