@@ -12,11 +12,21 @@
 
     <!--location preference [CHAR<=30]-->
     <string name="pref_location_name">Location</string>
-
     <!--key name [CHAR no limits]-->
     <string name="pref_location_key" translatable="false">location</string>
-
     <!--default postal code [CHAR no limits]-->
     <string name="pref_location_default" translatable="false">94043</string>
+    <!--key units-->
+    <string name="pref_units_key" translatable="false">units</string>
+    <!--units preference-->
+    <string name="pref_units_name">PICK YOUR UNITS</string>
+    <!--units metrics-->
+    <string name="pref_units_metric" translatable="false">metric</string>
+    <!--units metrics name-->
+    <string name="pref_units_metric_name" translatable="false">METRIC</string>
+    <!--units imperial-->
+    <string name="pref_units_imperial" translatable="false">imperial</string>
+    <!--units imperial name-->
+    <string name="pref_units_imperial_name" translatable="false">IMPERIAL</string>
 
 </resources>
