@@ -2,6 +2,7 @@ package com.example.android.sunshine.app.test;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 import android.util.Log;
@@ -21,6 +22,88 @@ public class TestDb extends AndroidTestCase {
         SQLiteDatabase db = new WeatherDbHelper(this.mContext).getWritableDatabase();
         assertEquals(true, db.isOpen());
         db.close();
+    }
+    public void simpleReadWriteTest(){
+        WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        //Location
+        long rowId = simpleTest(db, WeatherContract.LocationEntry.TABLE_NAME,getLocationValues(),getLocationColumns());
+        //Weather
+        simpleTest(db, WeatherContract.WeatherEntry.TABLE_NAME,getWeatherValues(rowId),getWeatherColumns());
+        dbHelper.close();
+    }
+    public long simpleTest(SQLiteDatabase database,String tableName, ContentValues tableValues, String[] tableColumns){
+        long rowId = database.insert(tableName, null, tableValues);
+        assertTrue(rowId != -1);
+        Cursor cursorTest=database.query(tableName,tableColumns,null,null,null,null,null,null);
+        if (cursorTest.moveToFirst()){
+            ContentValues readValues = new ContentValues();
+            DatabaseUtils.cursorRowToContentValues(cursorTest,readValues);
+            assertEquals(readValues,tableValues);
+        }else{
+            fail("Something wrong..");
+        }
+        return rowId;
+    }
+
+    public String[] getLocationColumns(){
+        String[] columns = {
+                WeatherContract.LocationEntry._ID,
+                WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING,
+                WeatherContract.LocationEntry.COLUMN_CITY_NAME,
+                WeatherContract.LocationEntry.COLUMN_COORD_LAT,
+                WeatherContract.LocationEntry.COLUMN_COORD_LONG
+        }; return columns;
+    }
+    public String[] getWeatherColumns(){
+        String[] weatherColumns = {
+                WeatherContract.WeatherEntry._ID,
+                WeatherContract.WeatherEntry.COLUMN_LOC_KEY,
+                WeatherContract.WeatherEntry.COLUMN_DATETEXT,
+                WeatherContract.WeatherEntry.COLUMN_SHORT_DESC,
+                WeatherContract.WeatherEntry.COLUMN_WEATHER_ID,
+                WeatherContract.WeatherEntry.COLUMN_MIN_TEMP,
+                WeatherContract.WeatherEntry.COLUMN_MAX_TEMP,
+                WeatherContract.WeatherEntry.COLUMN_HUMIDITY,
+                WeatherContract.WeatherEntry.COLUMN_PRESSURE,
+                WeatherContract.WeatherEntry.COLUMN_WIND_SPEED,
+                WeatherContract.WeatherEntry.COLUMN_DEGREES
+        }; return weatherColumns;
+    }
+    public ContentValues getLocationValues(){
+        String testName = "Nerja";
+        String testLocationSetting = "29780";
+        Double testLat = 36.7496;
+        Double testLong = -3.876;
+        ContentValues values = new ContentValues();
+        values.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, testLocationSetting);
+        values.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, testName);
+        values.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, testLat);
+        values.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, testLong);
+        return values;
+    }
+    public ContentValues getWeatherValues(long locationRowId){
+        ContentValues weatherValues = new ContentValues();
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_LOC_KEY, locationRowId);
+        String testDatetext = "20142310";
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DATETEXT, testDatetext);
+        String testDesc = "Windy";
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC, testDesc);
+        double testWeatherId = 321;
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID, testWeatherId);
+        double testMinTemp = 19;
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP, testMinTemp);
+        double testMaxTemp = 30;
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP, testMaxTemp);
+        double testHum = 60;
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_HUMIDITY, testHum);
+        double testPres = 1020;
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_PRESSURE, testPres);
+        double testSpeed = 10;
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED, testSpeed);
+        double testDegrees = 25;
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DEGREES, testDegrees);
+        return weatherValues;
     }
 
     public void testInsertReadDb() {
