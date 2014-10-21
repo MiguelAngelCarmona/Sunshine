@@ -10,21 +10,15 @@ import android.util.Log;
 import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.data.WeatherDbHelper;
 
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Created by Administrador on 24/09/14.
  */
-public class TestDb extends AndroidTestCase {
+public class TestProvider extends AndroidTestCase {
 
-    public static String LOG_TAG = TestDb.class.getName();
+    public static String LOG_TAG = TestProvider.class.getName();
 
-    public void testCreateDb() throws Throwable {
+    public void testDeleteDb() throws Throwable {
         mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
-        SQLiteDatabase db = new WeatherDbHelper(this.mContext).getWritableDatabase();
-        assertEquals(true, db.isOpen());
-        db.close();
     }
     public void simpleReadWriteTest(){
         WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
@@ -109,7 +103,7 @@ public class TestDb extends AndroidTestCase {
         return weatherValues;
     }
 
-    public void testInsertReadDb() {
+    public void testInsertReadProvider() {
         String testName = "Nerja";
         String testLocationSetting = "29780";
         Double testLat = 36.7496;
@@ -138,17 +132,37 @@ public class TestDb extends AndroidTestCase {
                 WeatherContract.LocationEntry.COLUMN_COORD_LONG
         };
         //cursor:primary interface to the query results
-        Cursor cursor = db.query(WeatherContract.LocationEntry.TABLE_NAME,
+        /*Cursor cursor = db.query(WeatherContract.LocationEntry.TABLE_NAME,
                 columns,
                 null, //Columns for "where" clause
                 null, //values for "where" clause
                 null, //columns to group by
                 null, //columns to filter by rows groups
                 null // sort order
+        );*/
+        Cursor cursor = mContext.getContentResolver().query(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                null, // leaving "columns" null just returns all the columns.
+                null, // cols for "where" clause
+                null, // values for "where" clause
+                null // sort order
         );
 
+        TestDb.validateCursor(cursor, values);
+
+// Now see if we can successfully query if we include the row id
+        cursor = mContext.getContentResolver().query(
+                WeatherContract.LocationEntry.buildLocationUri(locationRowId),
+                null, // leaving "columns" null just returns all the columns.
+                null, // cols for "where" clause
+                null, // values for "where" clause
+                null // sort order
+        );
+
+        TestDb.validateCursor(cursor, values);
+
         //We get the value of each column
-        if (cursor.moveToFirst()) {
+        /*if (cursor.moveToFirst()) {
             int locationIndex = cursor.getColumnIndex(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING);
             String location = cursor.getString(locationIndex);
 
@@ -165,7 +179,7 @@ public class TestDb extends AndroidTestCase {
             assertEquals(testName, name);
             assertEquals(testLocationSetting, location);
             assertEquals(testLat, latitude);
-            assertEquals(testLong, longitude);
+            assertEquals(testLong, longitude);*/
             //Add data to weather
             ContentValues weatherValues = new ContentValues();
             weatherValues.put(WeatherContract.WeatherEntry.COLUMN_LOC_KEY, locationRowId);
@@ -194,7 +208,7 @@ public class TestDb extends AndroidTestCase {
             assertTrue(weatherRowId != -1);
             Log.d(LOG_TAG, "New weatherRow: " + weatherRowId);
 
-            String[] weatherColumns = {
+            /*String[] weatherColumns = {
                     WeatherContract.WeatherEntry._ID,
                     WeatherContract.WeatherEntry.COLUMN_LOC_KEY,
                     WeatherContract.WeatherEntry.COLUMN_DATETEXT,
@@ -215,6 +229,14 @@ public class TestDb extends AndroidTestCase {
                     null, //columns to group by
                     null, //columns to filter by rows groups
                     null // sort order
+            );*/
+            Cursor weatherCursor = mContext.getContentResolver().query(
+                    WeatherContract.WeatherEntry.CONTENT_URI,
+                    null, //return all columns
+                    null, //columns for where clause
+                    null, //values for where clause
+                    null //columns to group by
+
             );
 
             //We get the value of each column
@@ -253,17 +275,30 @@ public class TestDb extends AndroidTestCase {
                 fail("No values returned");
             }
         }
-    }
-    static void validateCursor(Cursor valueCursor, ContentValues expectedValues) {
-        assertTrue(valueCursor.moveToFirst());
-        Set<Map.Entry<String, Object>> valueSet = expectedValues.valueSet();
-        for (Map.Entry<String, Object> entry : valueSet) {
-            String columnName = entry.getKey();
-            int idx = valueCursor.getColumnIndex(columnName);
-            assertFalse(idx == -1);
-            String expectedValue = entry.getValue().toString();
-            assertEquals(expectedValue, valueCursor.getString(idx));
+
+
+    public void testGetType() {
+        // content://com.example.android.sunshine.app/weather/
+        String type = mContext.getContentResolver().getType(WeatherContract.WeatherEntry.CONTENT_URI);
+        // vnd.android.cursor.dir/com.example.android.sunshine.app/weather
+        assertEquals(WeatherContract.WeatherEntry.CONTENT_TYPE, type);
+        String testLocation = "94074";
+        // content://com.example.android.sunshine.app/weather/94074
+        type = mContext.getContentResolver().getType(WeatherContract.WeatherEntry.buildWeatherLocation(testLocation));
+        // vnd.android.cursor.dir/com.example.android.sunshine.app/weather
+        assertEquals(WeatherContract.WeatherEntry.CONTENT_TYPE, type);
+        String testDate = "20140612";
+        // content://com.example.android.sunshine.app/weather/94074/20140612
+        type = mContext.getContentResolver().getType(WeatherContract.WeatherEntry.builWeatherLocationWithDate(testLocation, testDate));
+        // vnd.android.cursor.item/com.example.android.sunshine.app/weather
+        assertEquals(WeatherContract.WeatherEntry.CONTENT_ITEM_TYPE, type);
+        // content://com.example.android.sunshine.app/location/
+        type = mContext.getContentResolver().getType(WeatherContract.LocationEntry.CONTENT_URI);
+        // vnd.android.cursor.dir/com.example.android.sunshine.app/location
+        assertEquals(WeatherContract.LocationEntry.CONTENT_TYPE, type);
+        // content://com.example.android.sunshine.app/location/1
+        type = mContext.getContentResolver().getType(WeatherContract.LocationEntry.buildLocationUri(1L));
+        // vnd.android.cursor.item/com.example.android.sunshine.app/location
+        assertEquals(WeatherContract.LocationEntry.CONTENT_ITEM_TYPE, type);
         }
-        valueCursor.close();
-    }
 }
