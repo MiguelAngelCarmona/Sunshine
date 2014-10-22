@@ -1,15 +1,15 @@
 package com.example.android.sunshine.app.test;
 
 import android.annotation.TargetApi;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Build;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
 import com.example.android.sunshine.app.data.WeatherContract;
-import com.example.android.sunshine.app.data.WeatherDbHelper;
 
 /**
  * Created by Administrador on 24/09/14.
@@ -18,22 +18,59 @@ public class TestProvider extends AndroidTestCase {
 
     public static String LOG_TAG = TestProvider.class.getName();
 
-    public void testDeleteDb() throws Throwable {
-        mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
-    }
+    // brings our database to an empty state
+    public void deleteAllRecords() {
+        mContext.getContentResolver().delete(
+                WeatherContract.WeatherEntry.CONTENT_URI,
+                null,
+                null
+                );
+        mContext.getContentResolver().delete(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                null,
+                null
+                );
 
+        Cursor cursor = mContext.getContentResolver().query(
+                WeatherContract.WeatherEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+                );
+        assertEquals(0, cursor.getCount());
+        cursor.close();
+        cursor = mContext.getContentResolver().query(
+                WeatherContract.LocationEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                null
+                );
+        assertEquals(0, cursor.getCount());
+        cursor.close();
+        }
+
+// Since we want each test to start with a clean slate, run deleteAllRecords
+// in setUp (called by the test runner before each test).
+    public void setUp() {
+        deleteAllRecords();
+    }
     public void testInsertReadProvider() {
 
-        WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        /*WeatherDbHelper dbHelper = new WeatherDbHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();*/
 
         ContentValues values = TestDb.getLocationValues();
 
         long locationRowId;
-        locationRowId = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, values);
+        //locationRowId = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, values);
         //if we got a row
+
+        Uri locationUri = mContext.getContentResolver().insert(WeatherContract.LocationEntry.CONTENT_URI,values);
+        locationRowId= ContentUris.parseId(locationUri);
         assertTrue(locationRowId != -1);
-        Log.d(LOG_TAG, "New row: " + locationRowId);
+        //Log.d(LOG_TAG, "New row: " + locationRowId);
 
         Cursor cursor = mContext.getContentResolver().query(
                 WeatherContract.LocationEntry.CONTENT_URI,
@@ -58,11 +95,13 @@ public class TestProvider extends AndroidTestCase {
             //Add data to weather
             ContentValues weatherValues = TestDb.getWeatherValues(locationRowId);
 
-            long weatherRowId;
+            /*long weatherRowId;
             weatherRowId = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, weatherValues);
             //if we got a row
             assertTrue(weatherRowId != -1);
-            Log.d(LOG_TAG, "New weatherRow: " + weatherRowId);
+            Log.d(LOG_TAG, "New weatherRow: " + weatherRowId);*/
+            Uri weatherInsertUri = mContext.getContentResolver().insert(WeatherContract.WeatherEntry.CONTENT_URI, weatherValues);
+            assertTrue(weatherInsertUri != null);
 
             Cursor weatherCursor = mContext.getContentResolver().query(
                     WeatherContract.WeatherEntry.CONTENT_URI,
@@ -127,7 +166,7 @@ public class TestProvider extends AndroidTestCase {
         else{
             fail("No weather data returned");
         }
-        dbHelper.close();
+        //dbHelper.close();
 
         }
 
@@ -156,6 +195,37 @@ public class TestProvider extends AndroidTestCase {
         // vnd.android.cursor.item/com.example.android.sunshine.app/location
         assertEquals(WeatherContract.LocationEntry.CONTENT_ITEM_TYPE, type);
         }
+
+    public void testUpdateLocation() {
+// Create a new map of values, where column names are the keys
+        ContentValues values = TestDb.getLocationValues();
+        Uri locationUri = mContext.getContentResolver().
+                insert(WeatherContract.LocationEntry.CONTENT_URI, values);
+        long locationRowId = ContentUris.parseId(locationUri);
+// Verify we got a row back.
+        assertTrue(locationRowId != -1);
+        Log.d(LOG_TAG, "New row id: " + locationRowId);
+        ContentValues updatedValues = new ContentValues(values);
+        updatedValues.put(WeatherContract.LocationEntry._ID, locationRowId);
+        updatedValues.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, "Balcon de Europa");
+        int count = mContext.getContentResolver().update(
+                WeatherContract.LocationEntry.CONTENT_URI, updatedValues, WeatherContract.LocationEntry._ID + "= ?",
+                new String[] { Long.toString(locationRowId)});
+        assertEquals(count, 1);
+// A cursor is your primary interface to the query results.
+        Cursor cursor = mContext.getContentResolver().query(
+                WeatherContract.LocationEntry.buildLocationUri(locationRowId),
+                null,
+                null, // Columns for the "where" clause
+                null, // Values for the "where" clause
+                null // sort order
+        );
+        TestDb.validateCursor(cursor, updatedValues);
+    }
+    // Make sure we can still delete after adding/updating stuff
+    public void testDeleteRecordsAtEnd() {
+        deleteAllRecords();
+    }
 
     // The target api annotation is needed for the call to keySet -- we wouldn't want
 // to use this in our app, but in a test it's fine to assume a higher target.
