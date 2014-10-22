@@ -19,6 +19,8 @@ import java.util.Set;
 public class TestDb extends AndroidTestCase {
 
     public static String LOG_TAG = TestDb.class.getName();
+    static final String TEST_LOCATION = "29780";
+    static final String TEST_DATE = "20141020";
 
     public void testCreateDb() throws Throwable {
         mContext.deleteDatabase(WeatherDbHelper.DATABASE_NAME);
@@ -73,39 +75,30 @@ public class TestDb extends AndroidTestCase {
                 WeatherContract.WeatherEntry.COLUMN_DEGREES
         }; return weatherColumns;
     }
-    public ContentValues getLocationValues(){
+    static ContentValues getLocationValues(){
         String testName = "Nerja";
-        String testLocationSetting = "29780";
+
         Double testLat = 36.7496;
         Double testLong = -3.876;
         ContentValues values = new ContentValues();
-        values.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, testLocationSetting);
+        values.put(WeatherContract.LocationEntry.COLUMN_LOCATION_SETTING, TEST_LOCATION);
         values.put(WeatherContract.LocationEntry.COLUMN_CITY_NAME, testName);
         values.put(WeatherContract.LocationEntry.COLUMN_COORD_LAT, testLat);
         values.put(WeatherContract.LocationEntry.COLUMN_COORD_LONG, testLong);
         return values;
     }
-    public ContentValues getWeatherValues(long locationRowId){
+    static ContentValues getWeatherValues(long locationRowId){
         ContentValues weatherValues = new ContentValues();
         weatherValues.put(WeatherContract.WeatherEntry.COLUMN_LOC_KEY, locationRowId);
-        String testDatetext = "20142310";
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DATETEXT, testDatetext);
-        String testDesc = "Windy";
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC, testDesc);
-        double testWeatherId = 321;
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID, testWeatherId);
-        double testMinTemp = 19;
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP, testMinTemp);
-        double testMaxTemp = 30;
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP, testMaxTemp);
-        double testHum = 60;
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_HUMIDITY, testHum);
-        double testPres = 1020;
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_PRESSURE, testPres);
-        double testSpeed = 10;
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED, testSpeed);
-        double testDegrees = 25;
-        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DEGREES, testDegrees);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DATETEXT, TEST_DATE);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_DEGREES, 1.1);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_HUMIDITY, 1.2);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_PRESSURE, 1.3);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MAX_TEMP, 75);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_MIN_TEMP, 65);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_SHORT_DESC, "Asteroids");
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WIND_SPEED, 5.5);
+        weatherValues.put(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID, 321);
         return weatherValues;
     }
 
