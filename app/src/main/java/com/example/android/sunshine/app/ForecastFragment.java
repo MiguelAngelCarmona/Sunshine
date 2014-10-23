@@ -5,9 +5,7 @@ package com.example.android.sunshine.app;
  */
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -52,19 +50,15 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity(), mforecastAdapter);
-            //weatherTask.execute("94043");
-            SharedPreferences prefs= PreferenceManager.getDefaultSharedPreferences(getActivity());
-
+            updateWeather();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void updateWeather(){
-        FetchWeatherTask weatherTask = new FetchWeatherTask(getActivity(), mforecastAdapter);
-        String location = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
-        weatherTask.execute(location);
+        String location = Utility.getPreferredLocation(getActivity());
+        new FetchWeatherTask(getActivity(), mforecastAdapter).execute(location);
     }
 
     @Override
