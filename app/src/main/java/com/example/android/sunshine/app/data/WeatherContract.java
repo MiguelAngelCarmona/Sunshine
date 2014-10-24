@@ -4,6 +4,9 @@ import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by Administrador on 23/09/14.
  */
@@ -16,6 +19,21 @@ public class WeatherContract {
     //Possible paths
     public static final String PATH_LOCATION= "location";
     public static final String PATH_WEATHER= "weather";
+
+    // Format used for storing dates in the database. ALso used for converting those strings
+// back into date objects for comparison/processing.
+    public static final String DATE_FORMAT = "yyyyMMdd";
+    /**
+     * Converts Date class to a string representation, used for easy comparison and database lookup.
+     * @param date The input date
+     * @return a DB-friendly representation of the date, using the format defined in DATE_FORMAT.
+     */
+    public static String getDbDateString(Date date){
+// Because the API returns a unix timestamp (measured in seconds),
+// it must be converted to milliseconds in order to be converted to valid date.
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+        return sdf.format(date);
+    }
 
     public static final class LocationEntry implements BaseColumns{
         public static final String TABLE_NAME = "location";
