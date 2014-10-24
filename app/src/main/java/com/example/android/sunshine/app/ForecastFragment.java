@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.android.sunshine.app.data.WeatherContract;
 
@@ -174,6 +175,29 @@ public class ForecastFragment extends Fragment implements LoaderCallbacks<Cursor
                 0
         );
 
+        mForecastAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                boolean isMetric = Utility.isMetric(getActivity());
+                switch (columnIndex) {
+                    case COL_WEATHER_MAX_TEMP:
+                    case COL_WEATHER_MIN_TEMP: {
+// we have to do some formatting and possibly a conversion
+                        ((TextView) view).setText(Utility.formatTemperature(
+                                cursor.getDouble(columnIndex), isMetric));
+                        return true;
+                    }
+                    case COL_WEATHER_DATE: {
+                        String dateString = cursor.getString(columnIndex);
+                        TextView dateView = (TextView) view;
+                        dateView.setText(Utility.formatDate(dateString));
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
@@ -181,9 +205,17 @@ public class ForecastFragment extends Fragment implements LoaderCallbacks<Cursor
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-
-             Intent showDetail = new Intent(getActivity(),DetailActivity.class).putExtra(Intent.EXTRA_TEXT,"placeholder");
-             //   startActivity(showDetail);
+                Cursor cursor = mForecastAdapter.getCursor();
+                if (cursor != null && cursor.moveToPosition(position)) {
+                    String dateString = Utility.formatDate(cursor.getString(COL_WEATHER_DATE));
+                    String weatherDescription = cursor.getString(COL_WEATHER_DESC);
+                    boolean isMetric = Utility.isMetric(getActivity());
+                    String high = Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MAX_TEMP),isMetric);
+                    String low = Utility.formatTemperature(cursor.getDouble(COL_WEATHER_MIN_TEMP),isMetric);
+                    String detailString = String.format("%s - %s - %s/%s",dateString,weatherDescription,high,low);
+                    Intent showDetail = new Intent(getActivity(), DetailActivity.class).putExtra(Intent.EXTRA_TEXT, detailString);
+                    startActivity(showDetail);
+                }
             }
         });
 
