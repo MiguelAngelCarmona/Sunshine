@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 public class DetailActivity extends ActionBarActivity {
 
-    
+    public static final String DATE_KEY = "forecast_date";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,8 +75,8 @@ public class DetailActivity extends ActionBarActivity {
             View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
 
             Intent intent = getActivity().getIntent();
-            if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
-                mForecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
+            if (intent != null && intent.hasExtra(DATE_KEY)) {
+                mForecastStr = intent.getStringExtra(DATE_KEY);
                 ((TextView) rootView.findViewById(R.id.detail_forecast_textview))
                         .setText(mForecastStr);
                 Log.d(LOG_TAG,"El texto mForecast es: "+mForecastStr);
