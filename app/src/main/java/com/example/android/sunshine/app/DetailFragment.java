@@ -93,9 +93,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         Log.v(LOG_TAG, "In onLoadFinished");
         if (data != null && data.moveToFirst()) {
 // Read weather condition ID from cursor
-// int weatherId = data.getInt(data.getColumnIndex(WeatherEntry.COLUMN_WEATHER_ID));
-// Use placeholder Image
-            mIconView.setImageResource(R.drawable.ic_launcher);
+            int weatherId = data.getInt(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_WEATHER_ID));
+// Use Weather Art Image
+            mIconView.setImageResource(Utility.getArtResourceForWeatherCondition(weatherId));
 // Read date from cursor and update views for day of week and date
             String date = data.getString(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_DATETEXT));
             String friendlyDateText = Utility.getDayName(getActivity(), date);
