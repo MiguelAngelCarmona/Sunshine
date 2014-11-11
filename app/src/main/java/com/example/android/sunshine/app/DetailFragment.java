@@ -31,7 +31,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private static final String LOCATION_KEY = "location";
     private ShareActionProvider mShareActionProvider;
     private String mLocation;
-    private String mForecast;
+    private String mForecast = null;
     private static final int DETAIL_LOADER = 0;
     private static final String[] FORECAST_COLUMNS = {
             WeatherContract.WeatherEntry.TABLE_NAME + "." + WeatherContract.WeatherEntry._ID,
@@ -90,6 +90,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.v(LOG_TAG, "In onLoadFinished");
         if (data != null && data.moveToFirst()) {
 // Read weather condition ID from cursor
 // int weatherId = data.getInt(data.getColumnIndex(WeatherEntry.COLUMN_WEATHER_ID));
@@ -125,12 +126,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             float pressure = data.getFloat(data.getColumnIndex(WeatherContract.WeatherEntry.COLUMN_PRESSURE));
             mPressureView.setText(getActivity().getString(R.string.format_pressure, pressure));
 // We still need this for the share intent
-            mForecast = String.format("%s - %s - %s/%s", dateText, description, high, low);
+            mForecast = String.format("%s - %s - %s/%s - %s", dateText, description, high,low,humidity);
             Log.v(LOG_TAG, "Forecast String: " + mForecast);
 // If onCreateOptionsMenu has already happened, we need to update the share intent now.
             if (mShareActionProvider != null) {
                 mShareActionProvider.setShareIntent(createShareForecastIntent());
             }
+        }else{
+            Log.v(LOG_TAG, "Error en onLoadFinished, no hay datos");
         }
     }
 
@@ -173,11 +176,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         MenuItem menuItem = menu.findItem(R.id.action_share);
 // Get the provider and hold onto it to set/change the share intent.
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
-// If onLoadFinished happens before this, we can go ahead and set the share intent now.
-        if (mForecast != null) {
-            mShareActionProvider.setShareIntent(createShareForecastIntent());
+// If onLoadFinished happens before this, we can go ahead and set the share intent now. IT DOES'NT WORK!!!!
+        /*if (mForecast != null) {
+            mShareActionProvider.setShareIntent(createShareForecastIntent());*/
         }
-    }
 
     private Intent createShareForecastIntent() {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -185,6 +187,15 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, mForecast + FORECAST_SHARE_HASHTAG);
         return shareIntent;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+        if (savedInstanceState != null) {
+            mLocation = savedInstanceState.getString(LOCATION_KEY);
+        }
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
