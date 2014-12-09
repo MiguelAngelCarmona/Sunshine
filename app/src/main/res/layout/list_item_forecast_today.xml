@@ -3,8 +3,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+    android:layout_height="match_parent"
+    android:gravity="center_vertical"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:background="@drawable/touch_selector"
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_height="wrap_content"
@@ -15,18 +18,15 @@
         <TextView
             android:id="@+id/list_item_date_textview"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TODAY"/>
+            android:layout_height="wrap_content"/>
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/list_item_high_textview"
-            android:text="25º"/>
+            android:id="@+id/list_item_high_textview"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/list_item_low_textview"
-            android:text="18º"/>
+            android:id="@+id/list_item_low_textview"/>
     </LinearLayout>
     <LinearLayout
         android:layout_height="wrap_content"
@@ -37,14 +37,12 @@
 
         <ImageView
             android:id="@+id/list_item_icon"
-            android:src="@drawable/ic_launcher"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/list_item_forecast_textview"
-            android:text="Clear"/>
+            android:id="@+id/list_item_forecast_textview"/>
     </LinearLayout>
 
 </LinearLayout>
